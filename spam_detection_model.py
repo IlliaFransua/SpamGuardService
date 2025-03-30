@@ -8,9 +8,12 @@ import pandas as pd
 
 
 class SpamDetectionModel:
-    MODEL_FILE = "model_training/spam_model.pkl"
-    DATA_FILE = "model_training/spam_data.npz"
-    VECTOR_FILE = "model_training/vectorizer.pkl"
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    MODEL_DIR = os.path.join(BASE_DIR, "model_training")
+
+    MODEL_FILE = os.path.join(MODEL_DIR, "spam_model.pkl")
+    DATA_FILE = os.path.join(MODEL_DIR, "spam_data.npz")
+    VECTOR_FILE = os.path.join(MODEL_DIR, "vectorizer.pkl")
 
     def __init__(self):
         self.texts = []
