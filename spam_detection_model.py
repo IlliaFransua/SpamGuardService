@@ -16,8 +16,13 @@ class SpamDetectionModel:
     VECTOR_FILE = os.path.join(MODEL_DIR, "vectorizer.pkl")
 
     def __init__(self):
+        """
+        Initialize the spam detection model.
+        Loads the model, vectorizer, and training data.
+        """
         self.texts = []
         self.labels = []
+        self.threshold = 0.6
 
         self.check_and_create_files()
 
@@ -26,19 +31,24 @@ class SpamDetectionModel:
         self.load_training_data()
 
     def check_and_create_files(self):
+        """
+        Ensure all necessary files exist.
+        If files do not exist, create and save default ones.
+        """
         if not os.path.exists(self.VECTOR_FILE):
-            # print(f"File {self.VECTOR_FILE} not found. Creating new")
             joblib.dump(CountVectorizer(), self.VECTOR_FILE)
 
         if not os.path.exists(self.MODEL_FILE):
-            # print(f"File {self.MODEL_FILE} not found. Creating new")
             joblib.dump(SGDClassifier(loss='log_loss'), self.MODEL_FILE)
 
         if not os.path.exists(self.DATA_FILE):
-            # print(f"File {self.DATA_FILE} not found. Creating new")
             self.save_training_data()
 
     def load_training_data(self):
+        """
+        Load training data from file if it exists.
+        Otherwise, initialize empty lists for texts and labels.
+        """
         if os.path.exists(self.DATA_FILE) and os.path.getsize(self.DATA_FILE) > 0:
             data = np.load(self.DATA_FILE, allow_pickle=True)
             self.texts = data['texts'].tolist()
@@ -48,9 +58,19 @@ class SpamDetectionModel:
             self.labels = []
 
     def save_training_data(self):
+        """
+        Save current training data (texts and labels) to file.
+        """
         np.savez(self.DATA_FILE, texts=self.texts, labels=self.labels)
 
     def train(self, spam_texts: List[str], non_spam_texts: List[str]):
+        """
+        Train the model with new spam and non-spam messages.
+        Updates the training dataset and retrains the classifier.
+
+        :param spam_texts: List of spam messages.
+        :param non_spam_texts: List of non-spam messages.
+        """
         new_texts = spam_texts + non_spam_texts
         new_labels = [1] * len(spam_texts) + [0] * len(non_spam_texts)
 
@@ -68,11 +88,38 @@ class SpamDetectionModel:
         self.classifier.partial_fit(X_all, y_all, classes=np.array([0, 1]))
         joblib.dump(self.classifier, self.MODEL_FILE)
 
+    def sigmoid(self, x):
+        """
+        Compute the sigmoid function.
+
+        :param x: Input value.
+        :return: Sigmoid output.
+        """
+        return 1 / (1 + np.exp(-x))
+
     def predict(self, text: str) -> bool:
+        """
+        Predict whether a message is spam.
+        Uses the trained classifier to determine spam probability.
+
+        :param text: Input message.
+        :return: True if spam, False otherwise.
+        """
         X = self.vectorizer.transform([text])
-        return self.classifier.predict(X)[0]
+        probabilities = self.classifier.predict_proba(X)
+        spam_probability = probabilities[0][1]
+        spam_probability = self.sigmoid(spam_probability)
+        print(spam_probability)
+        return spam_probability >= self.threshold
 
     def test(self, spam_texts: List[str], non_spam_texts: List[str]) -> float:
+        """
+        Evaluate the model on test data.
+
+        :param spam_texts: List of spam messages.
+        :param non_spam_texts: List of non-spam messages.
+        :return: Model accuracy on test data.
+        """
         texts = spam_texts + non_spam_texts
         labels = [1] * len(spam_texts) + [0] * len(non_spam_texts)
 
@@ -83,6 +130,9 @@ class SpamDetectionModel:
         return self.classifier.score(X, labels)
 
     def save_all(self):
+        """
+        Save the model, vectorizer, and training data.
+        """
         joblib.dump(self.vectorizer, self.VECTOR_FILE)
         joblib.dump(self.classifier, self.MODEL_FILE)
         self.save_training_data()
