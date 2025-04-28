@@ -97,6 +97,17 @@ class SpamDetectionModel:
         """
         return 1 / (1 + np.exp(-x))
 
+    def predict_spam_chance(self, text: str) -> float:
+        """
+        Predict the chance that a message is spam.
+
+        :param text: Input message.
+        :return: Chance of the message being spam (0.0 to 1.0).
+        """
+        X = self.vectorizer.transform([text])
+        spam_chance = self.classifier.predict_proba(X)[0, 1]
+        return spam_chance
+
     def predict(self, text: str) -> bool:
         """
         Predict whether a message is spam.
@@ -105,12 +116,8 @@ class SpamDetectionModel:
         :param text: Input message.
         :return: True if spam, False otherwise.
         """
-        X = self.vectorizer.transform([text])
-        probabilities = self.classifier.predict_proba(X)
-        spam_probability = probabilities[0][1]
-        spam_probability = self.sigmoid(spam_probability)
-        print(spam_probability)
-        return spam_probability >= self.threshold
+        spam_chance = self.predict_spam_chance(text)
+        return spam_chance >= self.threshold
 
     def test(self, spam_texts: List[str], non_spam_texts: List[str]) -> float:
         """
