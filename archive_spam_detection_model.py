@@ -7,7 +7,7 @@ from typing import List
 import pandas as pd
 
 
-class SpamDetectionModel:
+class ArchiveSpamDetectionModel:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     MODEL_DIR = os.path.join(BASE_DIR, "model_training")
 
@@ -109,7 +109,7 @@ class SpamDetectionModel:
         probabilities = self.classifier.predict_proba(X)
         spam_probability = probabilities[0][1]
         spam_probability = self.sigmoid(spam_probability)
-        print(spam_probability)
+        # print(spam_probability)
         return spam_probability >= self.threshold
 
     def test(self, spam_texts: List[str], non_spam_texts: List[str]) -> float:
