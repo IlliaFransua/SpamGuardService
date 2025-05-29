@@ -1,5 +1,7 @@
 # SpamGuardService
 
 ```bash
-uvicorn app:app --reload --host 0.0.0.0 --port 8000
+pip install -r requirements.txt
+cd spam_guard
+python api.py
 ```
