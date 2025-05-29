@@ -1,4 +1,4 @@
-from spam_detection_model import SpamDetectionModel
+from model import SpamDetectionModel
 from archive_spam_detection_model import ArchiveSpamDetectionModel
 import pandas as pd
 from typing import List, Tuple
