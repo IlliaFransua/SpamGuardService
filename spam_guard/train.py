@@ -1,6 +1,6 @@
 from typing import Iterator, List
 
-from spam_detection_model import SpamDetectionModel
+from model import SpamDetectionModel
 
 def read_in_batches(file_path: str, batch_size: int) -> Iterator[List[str]]:
     """
@@ -19,8 +19,8 @@ def read_in_batches(file_path: str, batch_size: int) -> Iterator[List[str]]:
     if batch:
         yield batch
 
-good_file = 'profanity_list/false_list.txt'
-bad_file = 'profanity_list/true_list.txt'
+good_file = '/Users/illiafransua/Documents/Projects/SpamGuardService/spam_guard/profanity_list/false_list.txt'
+bad_file = '/Users/illiafransua/Documents/Projects/SpamGuardService/spam_guard/profanity_list/true_list.txt'
 batch_size = 500
 
 model = SpamDetectionModel(threshold=0.6)
